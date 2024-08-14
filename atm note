@@ -1,0 +1,25 @@
+ATM Skenario test:
+Host Based:
+Vulnerability Assessment
+Test BIOS configuration
+Test the Default BIOS password, if provided
+Test Protection against USB devices, test plug sample usb drive to any usb port available
+Test all keyboard shortcuts are disabled
+Verify the patch level of the OS with VA 
+Secure transaction logs, dilakukan dengan mirroring port
+Check if antivirus is enabled, test after restart/check direct on host
+Check Windows UAC configuration
+
+Network Assessment:
+Discover all open ports ATM, need open box ATM
+Ensure communication are encrypted, need add intermediate sxi switch to mirroring port and open ATM box.
+Validate the ability to perform Man-in-the-middle attacks
+
+Physical Access Assessment:
+Testing all ATM input devices
+Testing the Ethernet point is secured from outside box
+Testing the electric-power point is secured
+Test Mirror and pin shield to identify and prevent shoulder surfing
+Test the lock protection again unauthorized access to banknotes or bills
+Test the ATM must be grouted on the floor to secure against robbery
+check CCTV coverage
