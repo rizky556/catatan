@@ -1,0 +1,5 @@
+1. Install proxy app on IOS/Android (Drony/Super Proxy)
+2. Make sure burpsuite cert CA has been installed on Mobile Android / IOS
+3. Setup Proxy on Proxy App *don't setup on wireless configuration
+4. Setup Burpsuite proxy on all interface and support invisible proxying
+5. run flutter mobile app
